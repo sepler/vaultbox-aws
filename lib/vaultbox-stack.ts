@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as apigateway from 'aws-cdk-lib/aws-apigateway'
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 
@@ -23,7 +24,7 @@ export class VaultBoxStack extends cdk.Stack {
               } catch {
                 return false;
               }
-              fs.copyFileSync('./lambda-vaultbox/target/vaultbox-jar-with-dependencies.jar', outputDir + '/foo.jar');
+              fs.copyFileSync('./lambda-vaultbox/target/vaultbox.jar', outputDir + '/vaultbox.jar');
               return true;
             }
           }
@@ -33,6 +34,10 @@ export class VaultBoxStack extends cdk.Stack {
       environment: {
         VAULT_BUCKET: bucket.bucketName
       }
+    });
+
+    new apigateway.LambdaRestApi(this, 'vaultbox-api', {
+      handler: handler
     });
   }
 }

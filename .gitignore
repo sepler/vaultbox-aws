@@ -9,3 +9,4 @@ cdk.out
 
 lambda-vaultbox/target
 lambda-vaultbox/.idea
+lambda-vaultbox/dependency-reduced-pom.xml
