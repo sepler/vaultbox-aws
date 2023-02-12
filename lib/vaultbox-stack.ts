@@ -12,8 +12,12 @@ export class VaultBoxStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const bucketVault = new s3.Bucket(this, 'vault');
-    const bucketStaging = new s3.Bucket(this, 'staging');
+    const bucketVault = new s3.Bucket(this, 'vault', {
+      encryption: s3.BucketEncryption.S3_MANAGED
+    });
+    const bucketStaging = new s3.Bucket(this, 'staging', {
+      encryption: s3.BucketEncryption.S3_MANAGED
+    });
     
     const stagingDdbTable = new dyanmodb.Table(this, 'StagingTable', {
       partitionKey: {
@@ -52,11 +56,11 @@ export class VaultBoxStack extends cdk.Stack {
       memorySize: 512,
       timeout: Duration.seconds(10)
     });
-
     stagingDdbTable.grantFullAccess(handler);
+    bucketStaging.grantReadWrite(handler);
     new apigateway.LambdaRestApi(this, 'vaultbox-api', {
       handler: handler,
     });
-    
+
   }
 }
