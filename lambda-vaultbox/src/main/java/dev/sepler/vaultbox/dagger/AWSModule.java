@@ -3,8 +3,8 @@ package dev.sepler.vaultbox.dagger;
 import dagger.Module;
 import dagger.Provides;
 import dev.sepler.vaultbox.accessor.S3Accessor;
-import dev.sepler.vaultbox.dao.StagingTableDao;
-import dev.sepler.vaultbox.dao.model.StagingRecord;
+import dev.sepler.vaultbox.dao.VaultItemTableDao;
+import dev.sepler.vaultbox.dao.model.VaultItem;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -19,9 +19,10 @@ public class AWSModule {
                 System.getenv("STAGING_BUCKET"), System.getenv("VAULT_BUCKET"));
     }
 
-    @Provides StagingTableDao provideStagingTableDao(final DynamoDbEnhancedClient dynamoDbEnhancedClient) {
-        return new StagingTableDao(dynamoDbEnhancedClient.table(System.getenv("STAGING_TABLE"),
-                TableSchema.fromBean(StagingRecord.class)));
+    @Provides
+    VaultItemTableDao provideVaultItemTableDao(final DynamoDbEnhancedClient dynamoDbEnhancedClient) {
+        return new VaultItemTableDao(dynamoDbEnhancedClient.table(System.getenv("VAULT_ITEM_TABLE"),
+                TableSchema.fromImmutableClass(VaultItem.class)));
     }
 
     @Provides

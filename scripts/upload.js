@@ -16,7 +16,9 @@ if (fs.existsSync('scripts/config.json')) {
     console.log('Read blob');
     var res = await axios.get(get_url_endpoint);
     console.log(res.data);
-    res = await axios.put(res.data, blob, {
+    const id = res.data.id;
+    const uploadUrl = res.data.uploadUrl;
+    res = await axios.put(uploadUrl, blob, {
         headers: {
             'Content-Disposition': `attachment; filename="${upload_file_name}"`,
             'Content-Type': 'binary/octet-stream'
