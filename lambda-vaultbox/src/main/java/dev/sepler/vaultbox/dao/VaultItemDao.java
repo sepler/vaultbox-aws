@@ -32,10 +32,6 @@ public class VaultItemDao {
                 .build()));
     }
 
-    public void makeInvalid(final String id, final String reason) {
-
-    }
-
     public void save(final VaultItem vaultItem) {
         log.info("Saving VaultItem: {}", vaultItem);
         vaultItemTable.putItem(vaultItem);
