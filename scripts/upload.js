@@ -12,7 +12,7 @@ if (fs.existsSync('scripts/config.json')) {
 
 (async () => {
     console.log('Reading blob');
-    const blob = fs.readFileSync(upload_file_name)
+    const blob = fs.readFileSync(upload_file_name);
     console.log('Read blob');
     var res = await axios.get(api_endpoint + '/getUploadUrl');
     console.log(res.data);
@@ -27,12 +27,16 @@ if (fs.existsSync('scripts/config.json')) {
 
     var poll = true;
     while (poll) {
-        res = await axios.post(api_endpoint + '/getVaultItem', {id: id})
+        res = await axios.post(api_endpoint + '/getVaultItem', {id: id});
         console.log(JSON.stringify(res.data));
-        if (res.data.status == 'IN_VAULT') {
+        if (res.data.status != 'STAGING') {
             break;
         }
         await sleep(1000);
+    }
+    if (res.data.status == 'IN_VAULT') {
+        res = await axios.post(api_endpoint + '/getDownloadUrl', {id: id});
+        console.log(res.data);
     }
 })();
 

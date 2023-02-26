@@ -10,6 +10,9 @@ import com.google.gson.Gson;
 import dev.sepler.vaultbox.accessor.S3Accessor;
 import dev.sepler.vaultbox.dagger.DaggerAWSComponent;
 import dev.sepler.vaultbox.dao.VaultItemDao;
+import dev.sepler.vaultbox.dao.model.VaultItemStatus;
+import dev.sepler.vaultbox.model.GetDownloadUrlRequest;
+import dev.sepler.vaultbox.model.GetDownloadUrlResponse;
 import dev.sepler.vaultbox.model.GetUploadUrlResponse;
 import dev.sepler.vaultbox.dao.model.VaultItem;
 import dev.sepler.vaultbox.model.GetVaultItemRequest;
@@ -63,6 +66,27 @@ public class APIHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
                     .build();
             return new APIGatewayProxyResponseEvent()
                     .withStatusCode(200)
+                    .withBody(GSON.toJson(response));
+        }
+        if ("/getDownloadUrl".equals(apiGatewayProxyRequestEvent.getPath())) {
+            GetDownloadUrlRequest request = GSON.fromJson(apiGatewayProxyRequestEvent.getBody(), GetDownloadUrlRequest.class);
+            Optional<VaultItem> vaultItemOptional = vaultItemDao.get(request.getId());
+            if (vaultItemOptional.isEmpty()) {
+                log.info("No VaultItem found");
+                return new APIGatewayProxyResponseEvent()
+                        .withStatusCode(404);
+            }
+            VaultItem vaultItem = vaultItemOptional.get();
+            if (!VaultItemStatus.IN_VAULT.equals(vaultItem.getStatus())) {
+                log.info("VaultItem is not IN_VAULT state");
+                return new APIGatewayProxyResponseEvent()
+                        .withStatusCode(404);
+            }
+            String downloadUrl = s3Accessor.getVaultDownloadUrl(vaultItem.getId());
+            GetDownloadUrlResponse response = GetDownloadUrlResponse.builder()
+                    .downloadUrl(downloadUrl)
+                    .build();
+            return new APIGatewayProxyResponseEvent()
                     .withBody(GSON.toJson(response));
         }
         return new APIGatewayProxyResponseEvent()
