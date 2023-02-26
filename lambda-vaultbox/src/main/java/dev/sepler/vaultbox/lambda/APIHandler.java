@@ -12,7 +12,11 @@ import dev.sepler.vaultbox.dagger.DaggerAWSComponent;
 import dev.sepler.vaultbox.dao.VaultItemDao;
 import dev.sepler.vaultbox.model.GetUploadUrlResponse;
 import dev.sepler.vaultbox.dao.model.VaultItem;
+import dev.sepler.vaultbox.model.GetVaultItemRequest;
+import dev.sepler.vaultbox.model.GetVaultItemResponse;
 import lombok.extern.log4j.Log4j2;
+
+import java.util.Optional;
 
 @Log4j2
 public class APIHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
@@ -40,6 +44,25 @@ public class APIHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
                     .uploadUrl(uploadUrl)
                     .build();
             return new APIGatewayProxyResponseEvent()
+                    .withBody(GSON.toJson(response));
+        }
+        if ("/getVaultItem".equals(apiGatewayProxyRequestEvent.getPath())) {
+            GetVaultItemRequest request = GSON.fromJson(apiGatewayProxyRequestEvent.getBody(), GetVaultItemRequest.class);
+            Optional<VaultItem> vaultItemOptional = vaultItemDao.get(request.getId());
+            if (vaultItemOptional.isEmpty()) {
+                return new APIGatewayProxyResponseEvent()
+                        .withStatusCode(404);
+            }
+            VaultItem vaultItem = vaultItemOptional.get();
+            GetVaultItemResponse response = GetVaultItemResponse.builder()
+                    .id(vaultItem.getId())
+                    .name(vaultItem.getName())
+                    .sizeInBytes(vaultItem.getSizeInBytes())
+                    .status(vaultItem.getStatus().name())
+                    .statusReason(vaultItem.getStatusReason())
+                    .build();
+            return new APIGatewayProxyResponseEvent()
+                    .withStatusCode(200)
                     .withBody(GSON.toJson(response));
         }
         return new APIGatewayProxyResponseEvent()
