@@ -1,4 +1,4 @@
-package dev.sepler.vaultbox.dao.model;
+package dev.sepler.vaultbox.model;
 
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;

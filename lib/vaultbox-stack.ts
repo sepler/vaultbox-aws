@@ -17,7 +17,12 @@ export class VaultBoxStack extends cdk.Stack {
       encryption: s3.BucketEncryption.S3_MANAGED
     });
     const stagingBucket = new s3.Bucket(this, 'StagingBucket', {
-      encryption: s3.BucketEncryption.S3_MANAGED
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      lifecycleRules: [
+        {
+          expiration: Duration.days(1)
+        }
+      ]
     });
     
     const vaultItemDdbTable = new dyanmodb.Table(this, 'VaultItemTable', {
@@ -95,5 +100,7 @@ export class VaultBoxStack extends cdk.Stack {
     vaultItemDdbTable.grantFullAccess(stagingEventHandler);
     stagingBucket.grantReadWrite(apiHandler);
     stagingBucket.grantReadWrite(stagingEventHandler);
+    vaultBucket.grantReadWrite(apiHandler);
+    vaultBucket.grantReadWrite(stagingEventHandler);
   }
 }

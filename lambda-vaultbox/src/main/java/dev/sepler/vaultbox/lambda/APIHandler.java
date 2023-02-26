@@ -9,8 +9,8 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent
 import com.google.gson.Gson;
 import dev.sepler.vaultbox.accessor.S3Accessor;
 import dev.sepler.vaultbox.dagger.DaggerAWSComponent;
-import dev.sepler.vaultbox.dao.VaultItemTableDao;
-import dev.sepler.vaultbox.dao.model.GetUploadUrlResponse;
+import dev.sepler.vaultbox.dao.VaultItemDao;
+import dev.sepler.vaultbox.model.GetUploadUrlResponse;
 import dev.sepler.vaultbox.dao.model.VaultItem;
 import lombok.extern.log4j.Log4j2;
 
@@ -21,19 +21,19 @@ public class APIHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
     private final S3Accessor s3Accessor;
 
-    private final VaultItemTableDao vaultItemTableDao;
+    private final VaultItemDao vaultItemDao;
 
     public APIHandler() {
         var component = DaggerAWSComponent.create();
         this.s3Accessor = component.s3Accessor();
-        this.vaultItemTableDao = component.vaultItemTableDao();
+        this.vaultItemDao = component.vaultItemDao();
     }
 
     @Override
     public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent apiGatewayProxyRequestEvent, final Context context) {
         log.info("Received request: {}", apiGatewayProxyRequestEvent);
         if ("/getUploadUrl".equals(apiGatewayProxyRequestEvent.getPath())) {
-            VaultItem vaultItem = vaultItemTableDao.createVaultItem();
+            VaultItem vaultItem = vaultItemDao.create();
             String uploadUrl = s3Accessor.getStagingUploadUrl(vaultItem.getId());
             GetUploadUrlResponse response = GetUploadUrlResponse.builder()
                     .id(vaultItem.getId())

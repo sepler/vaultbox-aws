@@ -24,5 +24,4 @@ if (fs.existsSync('scripts/config.json')) {
             'Content-Type': 'binary/octet-stream'
         }
     })
-    console.log(res.data);
 })();

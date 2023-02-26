@@ -2,6 +2,10 @@ package dev.sepler.vaultbox.dao.model;
 
 public enum VaultItemStatus {
 
-    STAGING
+    STAGING,
+
+    INVALID,
+
+    IN_VAULT
 
 }
